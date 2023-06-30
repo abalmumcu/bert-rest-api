@@ -1,48 +1,63 @@
-from flask import Flask, request, jsonify, render_template
-from app.model import BERTModel
+from flask import Flask, render_template
+from flask_restful import Api, Resource, reqparse
+from model import BERTModel
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder='../templates')
+api = Api(app)
 bert_model = BERTModel()
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-@app.route('/api/predict', methods=['POST'])
-def predict():
-    data = request.get_json()
-    input_texts = data['texts']
+class Predict(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('texts', type=list, location='json')
+        args = parser.parse_args()
+        input_texts = args['texts']
 
-    embeddings = bert_model.get_embeddings(input_texts)
+        embeddings = bert_model.get_embeddings(input_texts)
 
-    return jsonify({'embeddings': embeddings})
+        return {'embeddings': embeddings}
 
-@app.route('/api/word_embeddings', methods=['POST'])
-def word_embeddings():
-    data = request.get_json()
-    input_text = data['text']
+class WordEmbeddings(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('text', type=str, location='json')
+        args = parser.parse_args()
+        input_text = args['text']
 
-    tokens, embeddings = bert_model.get_word_embeddings(input_text)
+        tokens, embeddings = bert_model.get_word_embeddings(input_text)
 
-    return jsonify({'tokens': tokens, 'embeddings': embeddings})
+        return {'tokens': tokens, 'embeddings': embeddings}
 
-@app.route('/api/sentiment', methods=['POST'])
-def sentiment_analysis():
-    data = request.get_json()
-    input_texts = data['texts']
+class Sentiment(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('texts', type=list, location='json')
+        args = parser.parse_args()
+        input_texts = args['texts']
 
-    sentiments = bert_model.analyze_sentiment(input_texts)
+        sentiments = bert_model.analyze_sentiment(input_texts)
 
-    return jsonify({'sentiments': sentiments})
+        return {'sentiments': sentiments}
 
-@app.route('/api/entities', methods=['POST'])
-def entity_extraction():
-    data = request.get_json()
-    input_texts = data['texts']
+class Entities(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('texts', type=list, location='json')
+        args = parser.parse_args()
+        input_texts = args['texts']
 
-    entities = bert_model.extract_entities(input_texts)
+        entities = bert_model.extract_entities(input_texts)
 
-    return jsonify({'entities': entities})
+        return {'entities': entities}
+
+api.add_resource(Predict, '/api/predict')
+api.add_resource(WordEmbeddings, '/api/word_embeddings')
+api.add_resource(Sentiment, '/api/sentiment')
+api.add_resource(Entities, '/api/entities')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug = True,host='0.0.0.0', port=8888)
