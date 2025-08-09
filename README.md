@@ -9,25 +9,29 @@ The project has the following file structure:
 ```
 bert-rest-api/
   ├── app/
-  │   ├── model.py
   │   ├── api.py
-  │   ├── index.html
+  │   ├── model.py
   │   └── requirements.txt
+  ├── templates/
+  │   └── index.html
+  ├── tests/
+  │   └── test_embeddings.py
   ├── Dockerfile
   ├── .gitignore
   ├── LICENSE
   └── README.md
 ```
 
-- `app/`: Directory containing the main application files.
-  - `model.py`: Python script defining the BERT model and related functionalities.
-  - `api.py`: Python script defining the Flask API and its endpoints.
-  - `index.html`: HTML template for the home page of the API.
-  - `requirements.txt`: File listing the required Python libraries.
-- `Dockerfile`: File specifying the Docker image configuration.
-- `.gitignore`: File specifying the patterns of files and directories to be ignored by Git.
-- `LICENSE`: File containing the license information for the project.
-- `README.md`: File containing the project documentation and instructions.
+- `app/`: Directory containing the main application code.
+  - `api.py`: Flask application exposing the API.
+  - `model.py`: BERT model utilities.
+  - `requirements.txt`: Runtime Python dependencies.
+- `templates/`: HTML templates for the web interface.
+- `tests/`: Unit tests for key functionality.
+- `Dockerfile`: Docker image configuration.
+- `.gitignore`: Patterns for files ignored by Git.
+- `LICENSE`: Project license.
+- `README.md`: Project documentation and instructions.
 
 ## Usage
 
@@ -57,7 +61,7 @@ bert-rest-api/
 
 5. Access the API endpoints:
 
-   - Open your web browser and go to `http://localhost:5000` to view the home page with API information.
+   - Open your web browser and go to `http://localhost:8888` to view the home page with API information.
 
    - Use an API client (e.g., cURL or Postman) to send POST requests to the desired endpoints mentioned above.
 
@@ -74,10 +78,18 @@ To run the API server inside a Docker container, follow these steps:
 2. Run the Docker container:
 
    ```shell
-   docker run -d -p 5000:5000 bert-rest-api
+   docker run -d -p 8888:8888 bert-rest-api
    ```
 
-3. The API server is now running inside the Docker container. Access `http://localhost:5000` to see the home page and use the API endpoints as mentioned above.
+3. The API server is now running inside the Docker container. Access `http://localhost:8888` to see the home page and use the API endpoints as mentioned above.
+
+## Tests
+
+Run the test suite with:
+
+```shell
+pytest
+```
 
 ## License
 

@@ -1,12 +1,19 @@
-FROM python:3.9-slim-buster
+FROM python:3.11-slim
 
+# Set working directory
 WORKDIR /app
 
-COPY requirements.txt .
+# Install Python dependencies
+COPY app/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copy application code
+COPY app/ ./app/
+COPY templates/ ./templates/
 
-EXPOSE 5000
+# Expose the port used by the Flask app
+EXPOSE 8888
 
-CMD [ "python", "api.py" ]
+# Run the API
+CMD ["python", "app/api.py"]
+
