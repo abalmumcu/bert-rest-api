@@ -1,18 +1,24 @@
+import os
+
 import torch
 from transformers import BertTokenizer, BertModel, pipeline
 
 class BERTModel:
-    def __init__(self, model_name='bert-base-uncased'):
-        self.model_name = model_name
+    def __init__(self, model_name=None):
+        # Allow configuration via the ``MODEL_NAME`` environment variable to make
+        # the service adaptable to different model sizes or languages without
+        # code changes.
+        self.model_name = model_name or os.getenv("MODEL_NAME", "bert-base-uncased")
         self.tokenizer = None
         self.model = None
 
-        # Use task-specific pretrained models for sentiment analysis and NER instead
-        # of the base ``BertModel``.  Passing the raw ``BertModel`` to these
-        # pipelines raises errors because it lacks the classification heads
-        # required for the tasks.
+        # Use task-specific pretrained models for sentiment analysis, NER and
+        # summarisation instead of the base ``BertModel``.  Passing the raw
+        # ``BertModel`` to these pipelines raises errors because it lacks the
+        # classification heads required for the tasks.
         self.sentiment_analyzer = pipeline("sentiment-analysis")
         self.entity_extractor = pipeline("ner")
+        self.summarizer = pipeline("summarization")
 
         # Lazily load the base model only when embedding utilities are used.
 
@@ -69,3 +75,12 @@ class BERTModel:
 
     def extract_entities(self, input_texts):
         return self.entity_extractor(input_texts)
+
+    def summarize_texts(self, input_texts):
+        summaries = self.summarizer(input_texts)
+        # Each returned item can either be a dict with ``summary_text`` or a raw
+        # string (when mocked in tests).  Normalise to a list of strings.
+        return [s["summary_text"] if isinstance(s, dict) and "summary_text" in s else s for s in summaries]
+
+    def is_model_loaded(self):
+        return self.model is not None and self.tokenizer is not None
